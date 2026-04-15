@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Japan Trip Activity Picker</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --panel: rgba(255, 250, 244, 0.92);
+      --ink: #2e241c;
+      --muted: #6d5b4c;
+      --accent: #9b2226;
+      --accent-dark: #7f1d1d;
+      --gold: #c48a3a;
+      --gold-light: #e2b56d;
+      --border: rgba(112, 84, 54, 0.18);
+      --shadow: 0 20px 45px rgba(55, 35, 20, 0.12);
+      --shadow-soft: 0 14px 30px rgba(55, 35, 20, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(196, 138, 58, 0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(155, 34, 38, 0.16), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(155, 34, 38, 0.12), transparent 30%),
+        linear-gradient(180deg, #f7f2ea 0%, #efe4d5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 18px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1080px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero {
+      position: relative;
+      padding: 46px 32px 30px;
+      background:
+        linear-gradient(135deg, rgba(155, 34, 38, 0.95), rgba(107, 17, 29, 0.92)),
+        linear-gradient(135deg, #9b2226, #7f1d1d);
+      color: #fffaf6;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 70px;
+      background: linear-gradient(to top, rgba(255, 250, 244, 0.14), transparent);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.78rem;
+      opacity: 0.8;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 700px;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: rgba(255, 248, 242, 0.9);
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .stat-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 248, 242, 0.12);
+      border: 1px solid rgba(255, 248, 242, 0.2);
+      color: rgba(255, 248, 242, 0.95);
+      font-size: 0.92rem;
+      backdrop-filter: blur(3px);
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      padding: 32px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(112, 84, 54, 0.12);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      margin-bottom: 14px;
+      font-size: 1.25rem;
+      color: var(--accent-dark);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--gold), #a96c1f);
+      color: white;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+      box-shadow: 0 10px 22px rgba(169, 108, 31, 0.28);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+      box-shadow: 0 14px 28px rgba(169, 108, 31, 0.34);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .secondary-button {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      box-shadow: 0 10px 22px rgba(127, 29, 29, 0.24);
+    }
+
+    .secondary-button:hover {
+      box-shadow: 0 14px 28px rgba(127, 29, 29, 0.3);
+    }
+
+    .result {
+      min-height: 110px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 247, 239, 0.95), rgba(250, 239, 229, 0.95));
+      border: 1px solid rgba(196, 138, 58, 0.24);
+      padding: 20px;
+    }
+
+    .result + .result {
+      margin-top: 16px;
+    }
+
+    .result-label {
+      margin: 0 0 8px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .result-text {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.45;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .result-subtext {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .day-plan-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .day-slot {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(196, 138, 58, 0.2);
+    }
+
+    .day-slot-label {
+      margin: 0 0 4px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .day-slot-text {
+      margin: 0;
+      color: var(--accent-dark);
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      columns: 2;
+      column-gap: 28px;
+    }
+
+    li {
+      margin-bottom: 10px;
+      break-inside: avoid;
+      color: var(--ink);
+    }
+
+    .footer-link {
+      padding: 0 32px 28px;
+    }
+
+    .footer-link a {
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+
+    .note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 760px) {
+      .content {
+        grid-template-columns: 1fr;
+        padding: 22px;
+      }
+
+      .hero {
+        padding: 32px 22px 24px;
+      }
+
+      ul {
+        columns: 1;
+      }
+
+      .button-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .footer-link {
+        padding: 0 22px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <p class="eyebrow">Interactive Travel App</p>
+      <h1>Japan Trip Activity Picker</h1>
+      <p>
+        Need help choosing what to do next? Click the buttons to get a random pick from your real Tokyo, Osaka,
+        and Kyoto activity list or build a full day with morning, afternoon, and evening ideas.
+      </p>
+      <div class="hero-stats">
+        <span class="stat-chip">Tokyo, Osaka, Kyoto</span>
+        <span class="stat-chip">45 real activities</span>
+        <span class="stat-chip">Food + views + culture + nightlife</span>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="panel">
+        <h2>Pick an Activity</h2>
+        <div class="button-row">
+          <button id="pickButton" type="button">Choose My Japan Activity</button>
+          <button id="dayPlanButton" class="secondary-button" type="button">Build a Full Day Plan</button>
+        </div>
+
+        <div class="result" id="resultArea" aria-live="polite">
+          <p class="result-label">Suggested Activity</p>
+          <p class="result-text">Click the button to get your next Japan adventure.</p>
+          <p class="result-subtext">The picker pulls from your actual itinerary list across Tokyo, Osaka, and Kyoto.</p>
+        </div>
+
+        <div class="result" id="dayPlanArea" aria-live="polite">
+          <p class="result-label">Full Day Plan</p>
+          <p class="result-text">Build a full day to get a morning, afternoon, and evening idea.</p>
+          <p class="result-subtext">Perfect for quickly sketching out three random activities in one real trip city.</p>
+        </div>
+
+        <p class="note">
+          Use the first button when you want one quick idea. Use the second when you want three random activities from only one city.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>Activity List</h2>
+        <ul id="activityList">
+          <li>Tokyo: Shibuya Crossing</li>
+          <li>Tokyo: Shibuya Sky observation deck</li>
+          <li>Tokyo: teamLab Borderless museum</li>
+          <li>Tokyo: Explore Shinjuku nightlife</li>
+          <li>Tokyo: Tokyo Metropolitan Government Building view</li>
+          <li>Tokyo: Harajuku Takeshita Street shopping</li>
+          <li>Tokyo: Meiji Shrine walk</li>
+          <li>Tokyo: Asakusa and Senso-ji Temple</li>
+          <li>Tokyo: Tokyo Skytree</li>
+          <li>Tokyo: Tsukiji Outer Market food</li>
+          <li>Tokyo: Akihabara anime and electronics</li>
+          <li>Tokyo: Odaiba waterfront area</li>
+          <li>Tokyo: Ueno Park and zoo</li>
+          <li>Tokyo: Roppongi Hills observation deck</li>
+          <li>Tokyo: Convenience store food crawl</li>
+          <li>Osaka: Dotonbori street food</li>
+          <li>Osaka: Glico running man sign</li>
+          <li>Osaka: Try takoyaki</li>
+          <li>Osaka: Try okonomiyaki</li>
+          <li>Osaka: Osaka Castle</li>
+          <li>Osaka: Osaka Castle park walk</li>
+          <li>Osaka: Shinsaibashi shopping street</li>
+          <li>Osaka: Kuromon Ichiba Market</li>
+          <li>Osaka: Umeda Sky Building view</li>
+          <li>Osaka: Universal Studios Japan</li>
+          <li>Osaka: Amerikamura district</li>
+          <li>Osaka: Day trip to Hiroshima</li>
+          <li>Osaka: Night food tour</li>
+          <li>Osaka: Explore Namba area</li>
+          <li>Osaka: River walk along Dotonbori</li>
+          <li>Osaka: Arcade and gaming center</li>
+          <li>Kyoto: Fushimi Inari shrine hike</li>
+          <li>Kyoto: Arashiyama bamboo forest</li>
+          <li>Kyoto: Monkey park in Arashiyama</li>
+          <li>Kyoto: Kinkaku-ji (Golden Pavilion)</li>
+          <li>Kyoto: Kiyomizu-dera temple</li>
+          <li>Kyoto: Gion district walk</li>
+          <li>Kyoto: Higashiyama streets</li>
+          <li>Kyoto: Philosopher's Path walk</li>
+          <li>Kyoto: Bike along Philosopher's Path</li>
+          <li>Kyoto: Nijo Castle</li>
+          <li>Kyoto: Nishiki Market food street</li>
+          <li>Kyoto: Day trip to Nara deer park</li>
+          <li>Kyoto: Kibune hike and river area</li>
+          <li>Kyoto: Tea house experience</li>
+          <li>Kyoto: Sunrise or sunset temple visit</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="footer-link">
+      <a href="scratch.html">Back to Scratch Page</a>
+    </div>
+  </main>
+
+  <script>
+    const activities = [
+      "Tokyo: Shibuya Crossing",
+      "Tokyo: Shibuya Sky observation deck",
+      "Tokyo: teamLab Borderless museum",
+      "Tokyo: Explore Shinjuku nightlife",
+      "Tokyo: Tokyo Metropolitan Government Building view",
+      "Tokyo: Harajuku Takeshita Street shopping",
+      "Tokyo: Meiji Shrine walk",
+      "Tokyo: Asakusa and Senso-ji Temple",
+      "Tokyo: Tokyo Skytree",
+      "Tokyo: Tsukiji Outer Market food",
+      "Tokyo: Akihabara anime and electronics",
+      "Tokyo: Odaiba waterfront area",
+      "Tokyo: Ueno Park and zoo",
+      "Tokyo: Roppongi Hills observation deck",
+      "Tokyo: Convenience store food crawl",
+      "Osaka: Dotonbori street food",
+      "Osaka: Glico running man sign",
+      "Osaka: Try takoyaki",
+      "Osaka: Try okonomiyaki",
+      "Osaka: Osaka Castle",
+      "Osaka: Osaka Castle park walk",
+      "Osaka: Shinsaibashi shopping street",
+      "Osaka: Kuromon Ichiba Market",
+      "Osaka: Umeda Sky Building view",
+      "Osaka: Universal Studios Japan",
+      "Osaka: Amerikamura district",
+      "Osaka: Day trip to Hiroshima",
+      "Osaka: Night food tour",
+      "Osaka: Explore Namba area",
+      "Osaka: River walk along Dotonbori",
+      "Osaka: Arcade and gaming center",
+      "Kyoto: Fushimi Inari shrine hike",
+      "Kyoto: Arashiyama bamboo forest",
+      "Kyoto: Monkey park in Arashiyama",
+      "Kyoto: Kinkaku-ji (Golden Pavilion)",
+      "Kyoto: Kiyomizu-dera temple",
+      "Kyoto: Gion district walk",
+      "Kyoto: Higashiyama streets",
+      "Kyoto: Philosopher's Path walk",
+      "Kyoto: Bike along Philosopher's Path",
+      "Kyoto: Nijo Castle",
+      "Kyoto: Nishiki Market food street",
+      "Kyoto: Day trip to Nara deer park",
+      "Kyoto: Kibune hike and river area",
+      "Kyoto: Tea house experience",
+      "Kyoto: Sunrise or sunset temple visit"
+    ];
+
+    const pickButton = document.getElementById("pickButton");
+    const dayPlanButton = document.getElementById("dayPlanButton");
+    const resultArea = document.getElementById("resultArea");
+    const dayPlanArea = document.getElementById("dayPlanArea");
+
+    function pickRandomItem(list) {
+      const randomIndex = Math.floor(Math.random() * list.length);
+      return list[randomIndex];
+    }
+
+    function shuffleList(list) {
+      const copy = [...list];
+
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        const currentValue = copy[index];
+        copy[index] = copy[randomIndex];
+        copy[randomIndex] = currentValue;
+      }
+
+      return copy;
+    }
+
+    pickButton.addEventListener("click", () => {
+      const selectedActivity = pickRandomItem(activities);
+
+      resultArea.innerHTML = `
+        <p class="result-label">Suggested Activity</p>
+        <p class="result-text">${selectedActivity}</p>
+        <p class="result-subtext">A random pick from the exact activities on your trip list.</p>
+      `;
+    });
+
+    dayPlanButton.addEventListener("click", () => {
+      const cities = ["Tokyo", "Osaka", "Kyoto"];
+      const city = pickRandomItem(cities);
+      const cityActivities = activities.filter((activity) => activity.startsWith(`${city}: `));
+      const shuffledCityActivities = shuffleList(cityActivities);
+      const [morning, afternoon, evening] = shuffledCityActivities.slice(0, 3);
+
+      dayPlanArea.innerHTML = `
+        <p class="result-label">Full Day Plan</p>
+        <p class="result-text">${city} Day Plan</p>
+        <div class="day-plan-grid">
+          <div class="day-slot">
+            <p class="day-slot-label">Morning</p>
+            <p class="day-slot-text">${morning}</p>
+          </div>
+          <div class="day-slot">
+            <p class="day-slot-label">Afternoon</p>
+            <p class="day-slot-text">${afternoon}</p>
+          </div>
+          <div class="day-slot">
+            <p class="day-slot-label">Evening</p>
+            <p class="day-slot-text">${evening}</p>
+          </div>
+        </div>
+        <p class="result-subtext">Three random activities from ${city} only, so every generated day stays in one city.</p>
+      `;
+    });
+  </script>
+</body>
+</html>
